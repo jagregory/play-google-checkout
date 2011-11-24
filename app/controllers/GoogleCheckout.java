@@ -3,16 +3,21 @@ package controllers;
 import com.google.checkout.sdk.commands.ApiContext;
 import com.google.checkout.sdk.domain.OrderSummary;
 import com.google.checkout.sdk.notifications.Notification;
+import com.google.gson.Gson;
 import models.GoogleCheckoutApiFactory;
 import models.GoogleCheckoutInitializationException;
 import models.GoogleCheckoutNotification;
 import models.PlayNotificationDispatcher;
 import play.Logger;
+import play.libs.IO;
 import play.mvc.Controller;
 
 public class GoogleCheckout extends Controller {
     public static void callback() {
         ApiContext api;
+
+        Logger.info(new Gson().toJson(request));
+        Logger.info(new String(IO.readContent(request.body)));
 
         try {
             api = GoogleCheckoutApiFactory.build();
