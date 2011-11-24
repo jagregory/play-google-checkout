@@ -1,4 +1,4 @@
-self: play -> google-checkout 0.1
+self: play -> googlecheckout 0.1
 
 require:
     - play

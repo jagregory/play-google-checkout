@@ -1,1 +1,1 @@
-POST    /google-checkout-callback   Module.index
+POST    /google-checkout-callback   GoogleCheckout.callback
