@@ -1,10 +1,10 @@
 # Here you can create play commands that are specific to the module, and extend existing commands
 
-MODULE = 'play-google-checkout'
+MODULE = 'google-checkout'
 
 # Commands that are specific to your module
 
-COMMANDS = ['play-google-checkout:hello']
+COMMANDS = ['google-checkout:hello']
 
 def execute(**kargs):
     command = kargs.get("command")

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="play-google-checkout" default="build" basedir=".">
+<project name="google-checkout" default="build" basedir=".">
 
     <target name="check" unless="play.path">
         <fail message="Please specify Play framework path using -Dplay.path=/path/to/framework/home" />
@@ -29,7 +29,7 @@
                 <include name="**/play.static"/>
             </fileset>
         </copy>
-        <jar destfile="lib/play-play-google-checkout.jar" basedir="tmp/classes">
+        <jar destfile="lib/play-google-checkout.jar" basedir="tmp/classes">
             <manifest>
                 <section name="Play-module">
                     <attribute name="Specification-Title" value="play-google-checkout"/>
