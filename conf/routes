@@ -1,8 +1,1 @@
-# This file defines all module routes (Higher priority routes first)
-#
-# import these routes in the main app as :
-# *     /                       module:play-google-checkout
-#
-# ~~~~
-
-GET     /?                      Module.index
+POST    /google-checkout-callback   Module.index
