@@ -7,17 +7,19 @@ h2. Installation
 
 h3. Module installation
 
+bq. Note: this step won't actually work until we're up in the module repository. In the meantime you can clone this repository and build the module yourself.
+
 Install the googlecheckout module from the modules repository:
 
-  play install googlecheckout
+<pre><code>play install googlecheckout</code></pre>
 
 h3. Configuring the module
 
 Add the following to your @dependencies.yml@ to enable it:
 
-  require:
+<pre><code>require:
     - play
-    - play -> googlecheckout 0.1
+    - play -> googlecheckout 0.1</code></pre>
 
 Add the routes into your @routes@ file to enable the Google Checkout callback:
 
