@@ -9,8 +9,9 @@ import play.Logger;
 import play.Play;
 import play.mvc.Controller;
 import play.mvc.Http;
-import play.utils.Java;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class GoogleCheckout extends Controller {
@@ -20,7 +21,7 @@ public class GoogleCheckout extends Controller {
                 .handleNotification(new DelegatedNotificationDispatcher(request,  response));
         } catch (GoogleCheckoutInitializationException ex) {
             Logger.error(ex, "Unable to create Google Checkout API");
-            badRequest();
+            error();
         }
     }
     
@@ -31,74 +32,74 @@ public class GoogleCheckout extends Controller {
 
         @Override
         protected boolean hasAlreadyHandled(String serialNumber, OrderSummary orderSummary, Notification notification) throws Exception {
-            Object result = NotificationHandler.invoke("alreadyHandled", serialNumber, orderSummary, notification);
+            Object result = NotificationHandler.alreadyHandled(serialNumber, orderSummary, notification);
 
             return result != null && result.equals(true);
         }
 
         @Override
         protected void rememberSerialNumber(String serialNumber, OrderSummary orderSummary, Notification notification) throws Exception {
-            NotificationHandler.invoke("rememberSerialNumber", serialNumber, orderSummary, notification);
+            NotificationHandler.rememberSerialNumber(serialNumber, orderSummary, notification);
         }
 
         @Override
         protected void onNewOrderNotification(OrderSummary orderSummary, NewOrderNotification notification) throws Exception {
-            NotificationHandler.invoke("newOrder", orderSummary, notification);
+            NotificationHandler.newOrder(orderSummary, notification);
         }
 
         @Override
         protected void onOrderStateChangeNotification(OrderSummary orderSummary, OrderStateChangeNotification notification) throws Exception {
-            NotificationHandler.invoke("orderStateChange", orderSummary, notification);
+            NotificationHandler.orderStateChange(orderSummary, notification);
         }
 
         @Override
         protected void onChargeAmountNotification(OrderSummary orderSummary, ChargeAmountNotification notification) throws Exception {
-            NotificationHandler.invoke("chargeAmount", orderSummary, notification);
+            NotificationHandler.chargeAmount(orderSummary, notification);
         }
 
         @Override
         protected void startTransaction(String serialNumber, OrderSummary orderSummary, Notification notification) throws Exception {
-            NotificationHandler.invoke("startTransaction", serialNumber, orderSummary, notification);
+            NotificationHandler.startTransaction(serialNumber, orderSummary, notification);
         }
 
         @Override
         protected void commitTransaction(String serialNumber, OrderSummary orderSummary, Notification notification) throws Exception {
-            NotificationHandler.invoke("commitTransaction", serialNumber, orderSummary, notification);
+            NotificationHandler.commitTransaction(serialNumber, orderSummary, notification);
         }
 
         @Override
         protected void rollBackTransaction(String serialNumber, OrderSummary orderSummary, Notification notification) throws Exception {
-            NotificationHandler.invoke("rollbackTransaction", serialNumber, orderSummary, notification);
+            NotificationHandler.rollbackTransaction(serialNumber, orderSummary, notification);
         }
 
         @Override
         protected void onAllNotifications(OrderSummary orderSummary, Notification notification) throws Exception {
-            NotificationHandler.invoke("all", orderSummary, notification);
+            NotificationHandler.all(orderSummary, notification);
         }
 
         @Override
         protected void onRefundAmountNotification(OrderSummary orderSummary, RefundAmountNotification notification) throws Exception {
-            NotificationHandler.invoke("refundAmount", orderSummary, notification);
+            NotificationHandler.refundAmount(orderSummary, notification);
         }
 
         @Override
         protected void onRiskInformationNotification(OrderSummary orderSummary, RiskInformationNotification notification) throws Exception {
-            NotificationHandler.invoke("riskInformation", orderSummary, notification);
+            NotificationHandler.riskInformation(orderSummary, notification);
         }
 
         @Override
         protected void onChargebackAmountNotification(OrderSummary orderSummary, ChargebackAmountNotification notification) throws Exception {
-            NotificationHandler.invoke("chargebackAmount", orderSummary, notification);
+            NotificationHandler.chargebackAmount(orderSummary, notification);
         }
 
         @Override
         protected void onAuthorizationAmountNotification(OrderSummary orderSummary, AuthorizationAmountNotification notification) throws Exception {
-            NotificationHandler.invoke("authorizationAmount", orderSummary, notification);
+            NotificationHandler.authorizationAmount(orderSummary, notification);
         }
 
         @Override
         protected void onRiskAmountNotification(OrderSummary orderSummary, RefundAmountNotification notification) throws Exception {
-            NotificationHandler.invoke("riskAmount", orderSummary, notification);
+            NotificationHandler.riskAmount(orderSummary, notification);
         }
     }
 
@@ -116,7 +117,9 @@ public class GoogleCheckout extends Controller {
          *    committed; otherwise false.
          */
         static boolean alreadyHandled(String serialNumber, OrderSummary orderSummary, Notification notification) {
-            return false;
+            Object result = invokeOverride("alreadyHandled", serialNumber, orderSummary, notification);
+
+            return result != null && result.equals(true);
         }
 
         /**
@@ -130,6 +133,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void rememberSerialNumber(String serialNumber, OrderSummary orderSummary, Notification notification) {
+            invokeOverride("rememberSerialNumber", serialNumber, orderSummary, notification);
         }
 
         /**
@@ -139,6 +143,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void newOrder(OrderSummary orderSummary, NewOrderNotification notification) {
+            invokeOverride("newOrder", orderSummary, notification);
         }
 
         /**
@@ -148,6 +153,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void orderStateChange(OrderSummary orderSummary, OrderStateChangeNotification notification) {
+            invokeOverride("orderStateChange", orderSummary, notification);
         }
 
         /**
@@ -157,6 +163,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void chargeAmount(OrderSummary orderSummary, ChargeAmountNotification notification) {
+            invokeOverride("chargeAmount", orderSummary, notification);
         }
 
         /**
@@ -169,6 +176,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void startTransaction(String serialNumber, OrderSummary orderSummary, Notification notification) {
+            invokeOverride("startTransaction", serialNumber, orderSummary, notification);
         }
 
         /**
@@ -182,6 +190,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void commitTransaction(String serialNumber, OrderSummary orderSummary, Notification notification) {
+            invokeOverride("commitTransaction", serialNumber, orderSummary, notification);
         }
 
         /**
@@ -195,6 +204,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void rollbackTransaction(String serialNumber, OrderSummary orderSummary, Notification notification) {
+            invokeOverride("rollbackTransaction", serialNumber, orderSummary, notification);
         }
 
         /**
@@ -205,6 +215,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void all(OrderSummary orderSummary, Notification notification) {
+            invokeOverride("all", orderSummary, notification);
         }
 
         /**
@@ -214,6 +225,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void refundAmount(OrderSummary orderSummary, RefundAmountNotification notification) {
+            invokeOverride("refundAmount", orderSummary, notification);
         }
 
         /**
@@ -223,6 +235,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void riskInformation(OrderSummary orderSummary, RiskInformationNotification notification) {
+            invokeOverride("riskInformation", orderSummary, notification);
         }
 
         /**
@@ -232,6 +245,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void chargebackAmount(OrderSummary orderSummary, ChargebackAmountNotification notification) {
+            invokeOverride("chargebackAmount", orderSummary, notification);
         }
 
         /**
@@ -241,6 +255,7 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void authorizationAmount(OrderSummary orderSummary, AuthorizationAmountNotification notification) {
+            invokeOverride("authorizationAmount", orderSummary, notification);
         }
 
         /**
@@ -250,13 +265,67 @@ public class GoogleCheckout extends Controller {
          * @param notification The parsed JAXB object of the notification itself.
          */
         static void riskAmount(OrderSummary orderSummary, RefundAmountNotification notification) {
+            invokeOverride("riskAmount", orderSummary, notification);
         }
 
-        static Object invoke(String methodName, Object... args) throws Exception {
-            List<Class> classes = Play.classloader.getAssignableClasses(NotificationHandler.class);
-            Class handler = classes.size() == 0 ? NotificationHandler.class : classes.get(0);
+        static Method[] methods;
 
-            return Java.invokeStaticOrParent(handler, methodName, args);
+        /**
+         * Find a method in the user defined subclass
+         * @param name Method name to try to find
+         * @return Method if it exists, otherwise null
+         */
+        static Method findMethod(String name) {
+            // try to find a subclass and grab all its methods
+            if (methods == null) {
+                List<Class> classes = Play.classloader.getAssignableClasses(NotificationHandler.class);
+                Class handler = classes.size() == 0 ? null : classes.get(0);
+
+                if (handler != null) {
+                    methods = handler.getMethods();
+                } else {
+                    methods = new Method[0]; // we've tried to find some overridden methods, but can't
+                }
+            }
+
+            // iterate the overridden methods and try to find the one we're looking for
+            for (Method method : methods) {
+                if (method.getName().endsWith(name)) {
+                    return method;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * Invoke a method in the user defined subclass if it exists
+         * @param methodName Method to invoke
+         * @param args Arguments to pass to the overidden method
+         * @return The result of the method invocation, or null if it didn't exist (or is void)
+         */
+        static Object invokeOverride(String methodName, Object... args) {
+            Method method = findMethod(methodName);
+            
+            if (method == null) {
+                return null;
+            }
+            
+            if (method.getParameterTypes().length != args.length) {
+                Logger.error("Overriden method signature is incorrect - "+methodName);
+                return null;
+            }
+            
+            method.setAccessible(true);
+            try {
+                return method.invoke(null, args);
+            } catch (IllegalAccessException e) {
+                Logger.error(e, "Unable to access method");
+            } catch (InvocationTargetException e) {
+                Logger.error(e, "Unable to invoke method");
+            }
+
+            return null;
         }
     }
 }
