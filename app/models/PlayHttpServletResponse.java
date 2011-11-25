@@ -10,32 +10,34 @@ import java.io.PrintWriter;
 import java.util.Locale;
 
 public class PlayHttpServletResponse implements HttpServletResponse {
-    public PlayHttpServletResponse(Http.Response response) {
+    private Http.Response response;
 
+    public PlayHttpServletResponse(Http.Response response) {
+        this.response = response;
     }
 
     public void addCookie(Cookie cookie) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        response.setCookie(cookie.getName(), cookie.getValue(), cookie.getDomain(), cookie.getPath(), cookie.getMaxAge(), cookie.getSecure(), false); 
     }
 
-    public boolean containsHeader(String s) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    public boolean containsHeader(String header) {
+        return response.headers.containsKey(header);
     }
 
     public String encodeURL(String s) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return s;
     }
 
     public String encodeRedirectURL(String s) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return s;
     }
 
     public String encodeUrl(String s) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return s;
     }
 
     public String encodeRedirectUrl(String s) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return s;
     }
 
     public void sendError(int i, String s) throws IOException {
@@ -58,56 +60,60 @@ public class PlayHttpServletResponse implements HttpServletResponse {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void setHeader(String s, String s1) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void setHeader(String name, String value) {
+        response.setHeader(name, value);
     }
 
-    public void addHeader(String s, String s1) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void addHeader(String name, String value) {
+        response.setHeader(name, value);
     }
 
-    public void setIntHeader(String s, int i) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public void setIntHeader(String name, int i) {
+        setHeader(name, Integer.toString(i));
     }
 
     public void addIntHeader(String s, int i) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        setIntHeader(s, i);
     }
 
     public void setStatus(int i) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        response.status = i;
     }
 
     public void setStatus(int i, String s) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        response.status = i;
     }
 
     public String getCharacterEncoding() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return response.encoding;
     }
 
     public String getContentType() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return response.contentType;
     }
 
     public ServletOutputStream getOutputStream() throws IOException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new ServletOutputStream() {
+            @Override
+            public void write(int i) throws IOException {
+                response.out.write(i);
+            }
+        };
     }
 
     public PrintWriter getWriter() throws IOException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new PrintWriter(response.out);
     }
 
     public void setCharacterEncoding(String s) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        response.encoding = s;
     }
 
     public void setContentLength(int i) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public void setContentType(String s) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        response.contentType = s;
     }
 
     public void setBufferSize(int i) {
@@ -115,15 +121,15 @@ public class PlayHttpServletResponse implements HttpServletResponse {
     }
 
     public int getBufferSize() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return response.out.size();
     }
 
     public void flushBuffer() throws IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        response.out.flush();
     }
 
     public void resetBuffer() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        response.out.reset();
     }
 
     public boolean isCommitted() {
@@ -131,7 +137,7 @@ public class PlayHttpServletResponse implements HttpServletResponse {
     }
 
     public void reset() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        response.reset();
     }
 
     public void setLocale(Locale locale) {
