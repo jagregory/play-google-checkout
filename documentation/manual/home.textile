@@ -1,0 +1,95 @@
+h1. play-googlecheckout
+
+Integrate "Google Checkout":http://checkout.google.com/sell into your Play application.
+
+
+h2. Installation
+
+h3. Module installation
+
+Install the googlecheckout module from the modules repository:
+
+  play install googlecheckout
+
+h3. Configuring the module
+
+Add the following to your @dependencies.yml@ to enable it:
+
+  require:
+    - play
+    - play -> googlecheckout 0.1
+
+Add the routes into your @routes@ file to enable the Google Checkout callback:
+
+<pre><code>*    /    module:googlecheckout</code></pre>
+
+Configure your application by adding the following settings to your @application.conf@:
+
+<pre><code># Google checkout
+googlecheckout.merchantid=**your_sandbox_merchant_id**
+googlecheckout.merchantkey=**your_sandbox_merchant_key**
+%prod.googlecheckout.merchantid=**your_production_merchant_id**
+%prod.googlecheckout.merchantkey=**your_production_merchant_key**
+%prod.googlecheckout.sandbox=false</code></pre>
+
+You can optionally supply a @googlecheckout.currency@ to use a different currency than @USD@.
+
+h2. Usage
+
+h3. Submitting orders
+
+The googlecheckout module relies on the "Google Checkout SDK":http://code.google.com/p/google-checkout-java-sdk/ to interact with Google Checkout. To submit orders you do it the same way you normally would with the SDK, except you can use the @GoogleCheckoutApiFactory.build()@ factory method to create an instance of the Checkout API using the settings from your Play application.conf.
+
+A basic example:
+
+<pre><code>public class Basket extends QuidsinController {
+  public static void checkout() {
+    ApiContext api = null;
+    
+    try {
+      api = GoogleCheckoutApiFactory.build();
+    } catch (GoogleCheckoutInitializationException ex) {
+      error(ex);
+    }
+    
+    CartPoster.CheckoutShoppingCartBuilder cart = api.cartPoster().makeCart();
+    cart.addItem("Test item", "An item for testing", 10.50, 1);
+
+    CheckoutRedirect checkoutRedirect = cart.buildAndPost();
+    String redirectUrl = checkoutRedirect.getRedirectUrl();
+
+    redirect(redirectUrl);
+  }
+}</code></pre>
+
+What that Controller does is create the Google Checkout API context, build a cart, then add a single item to the cart. The @cart.buildAndPost()@ method-call submits the cart to Google Checkout, and they will respond with a redirect URL which you send your users to; this URL is where they'll complete the transaction on Google's servers.
+
+That's it as far as creating orders is concerned. You can leave it at that and use Google's merchant tools to manage all your orders; however, if you need to be notified about when orders are created, authorised, declined etc then read on.
+
+h3. Receiving notifications from Google Checkout
+
+The Google Checkout API works by POSTing you notifications to a specific publicly available URL on your website. When you receive one of these POSTs from Google, you can update the state of your system based on what they say.
+
+The googlecheckout module exposes a fixed URL at @/google-checkout-callback@ which Google will POST to. Make sure you configure your Google Checkout account to post to this URL (should be @https://your-application.com/google-checkout-callback@). Also, make sure your Callback contents are set to "Notification Serial Number" and your API version to at least 2.5.
+
+By default the googlecheckout module doesn't do anything with incoming notifications from Google, this may change in the future but right now it seems everybody's usage differs at this point so it's best to leave it up to the individual implementor. To handle notifications you need to extend the @GoogleCheckout.NotificationHandler@ class in a very similar way to how the @Secure@ module works.
+
+For example:
+
+<pre><code>public class MyPaymentNotificationHandler extends GoogleCheckout.NotificationHandler {}</code></pre>
+
+At a minimum you should implement the @boolean alreadyHandled(String serialNumber, OrderSummary orderSummary, Notification notification)@ and @static void rememberSerialNumber(String serialNumber, OrderSummary orderSummary, Notification notification)@ methods, which are required for Google Checkout notifications to function correctly.
+
+In short, implement the @rememberSerialNumber@ method by saving the serial number in a database table, then implement the @alreadyHandled@ method by looking up in that table whether there's already a row in there for the supplied serial number. From there you can start overriding the other methods to react to new orders being created, orders being authorised, charged, refunded, etc...
+
+If you follow the "Google Checkout Custom Processing tutorial":http://code.google.com/apis/checkout/developer/Google_Checkout_Custom_Processing_How_To.html you should be able to figure most of the rest of this out.
+
+All the methods which are available to override are in the @NotificationHandler@ nested class within "GoogleCheckout.java":https://github.com/jagregory/play-google-checkout/blob/master/app/controllers/GoogleCheckout.java (around line 105).
+
+h2. Bugs etc...
+
+The googlecheckout module is provided as-is with no warranty or even expectation that it will work for you. It's been extracted from an in-house solution and only tested on our one system. Feel free to raise issues on our "Github repository":http://github.com/jagregory/play-google-checkout.
+
+h2. History
+
+* v0.1: Initial version, nothing too fancy
