@@ -284,6 +284,7 @@ public class GoogleCheckout extends Controller {
                 if (handler != null) {
                     methods = handler.getMethods();
                 } else {
+                    Logger.warn("No user-defined implementation found for GoogleCheckout.NotificationHandler");
                     methods = new Method[0]; // we've tried to find some overridden methods, but can't
                 }
             }
@@ -308,6 +309,7 @@ public class GoogleCheckout extends Controller {
             Method method = findMethod(methodName);
             
             if (method == null) {
+                Logger.warn("No user-defined implementation found for "+methodName);
                 return null;
             }
             
