@@ -324,7 +324,7 @@ public class GoogleCheckout extends Controller {
             } catch (IllegalAccessException e) {
                 Logger.error(e, "Unable to access method");
             } catch (InvocationTargetException e) {
-                Logger.error(e, "Unable to invoke method");
+                Logger.error(e.getTargetException(), "Exception during callback execution");
             }
 
             return null;
